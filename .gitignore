@@ -1,0 +1,9 @@
+node_modules/
+dist/
+main.wasm
+_templ.go
+*.log
+verification/
+build_log.txt
+final_build.log
+server

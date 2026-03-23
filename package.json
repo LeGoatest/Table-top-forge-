@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@iconify-json/lucide": "^1.2.98",
+    "@iconify/tailwind": "^1.2.0",
+    "@tailwindcss/cli": "^4.2.2",
+    "tailwindcss": "^4.2.2"
+  }
+}

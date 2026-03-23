@@ -1,0 +1,79 @@
+package templates
+
+import "github.com/user/boardgame-engine/internal/engine"
+import "fmt"
+
+templ Layout(title string, body templ.Component) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>{ title }</title>
+			<link rel="stylesheet" href="/output.css"/>
+			<script src="https://unpkg.com/htmx.org@2.0.0"></script>
+			<link rel="manifest" href="/manifest.json"/>
+		</head>
+		<body class="bg-slate-100 font-sans">
+			<nav class="bg-slate-800 text-white p-4 shadow-md w-full">
+				<div class="container mx-auto flex justify-between items-center">
+					<a href="/" class="text-xl font-bold flex items-center gap-2">
+						<span class="icon-[lucide--gamepad-2]"></span>
+						Board Game Engine
+					</a>
+					<div class="flex gap-4">
+						<button hx-post="/reset" hx-target="#game-container" class="hover:text-slate-300">New Game</button>
+						<button hx-get="/slots" hx-target="#game-container" class="hover:text-slate-300">Slots</button>
+						<button hx-get="/" hx-target="#game-container" class="hover:text-slate-300">Checkers</button>
+					</div>
+				</div>
+			</nav>
+			<main class="container mx-auto p-4 flex flex-col items-center">
+				<div id="game-container" class="w-full flex justify-center">
+					@body
+				</div>
+			</main>
+		</body>
+	</html>
+}
+
+templ CheckersBoard(game *engine.Checkers) {
+	<div class="flex flex-col items-center gap-6">
+		<div class="text-2xl font-semibold">
+			if game.CurrentPlayer == engine.Red {
+				<span class="text-red-600">Red's Turn</span>
+			} else {
+				<span class="text-slate-900">Black's Turn</span>
+			}
+			if game.JumpActive {
+				<span class="ml-2 text-sm italic">(Must continue jumping)</span>
+			}
+		</div>
+		<div class="grid grid-cols-8 border-8 border-slate-900 shadow-2xl bg-amber-900 p-1 rounded-sm">
+			for r, row := range game.Board {
+				for c, piece := range row {
+					<div
+						class={ "w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center relative",
+                               templ.KV("bg-amber-100", (r+c)%2 == 0),
+                               templ.KV("bg-amber-800", (r+c)%2 != 0) }
+						hx-get={ fmt.Sprintf("/select?row=%d&col=%d", r, c) }
+						hx-target="#game-container"
+					>
+						if piece != engine.Empty {
+							<div
+								class={ "w-10 h-10 sm:w-14 sm:h-14 rounded-full shadow-lg flex items-center justify-center border-4",
+                                       templ.KV("bg-red-600 border-red-800", piece == engine.Red || piece == engine.RedKing),
+                                       templ.KV("bg-slate-900 border-slate-700", piece == engine.Black || piece == engine.BlackKing),
+                                       templ.KV("ring-4 ring-yellow-400 scale-110", game.SelectedPiece != nil && game.SelectedPiece.Row == r && game.SelectedPiece.Col == c) }
+							>
+								if piece == engine.RedKing || piece == engine.BlackKing {
+									<span class="icon-[lucide--crown] text-amber-400 text-xl sm:text-2xl"></span>
+								}
+							</div>
+						}
+					</div>
+				}
+			}
+		</div>
+	</div>
+}

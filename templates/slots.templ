@@ -1,0 +1,56 @@
+package templates
+
+import "github.com/user/boardgame-engine/internal/engine"
+import "fmt"
+
+templ SlotMachineGame(s *engine.SlotMachine) {
+	<div class="flex flex-col items-center gap-8 bg-slate-800 p-8 rounded-2xl shadow-2xl border-4 border-slate-700 max-w-md w-full">
+		<div class="flex flex-col items-center gap-2">
+			<h2 class="text-3xl font-bold text-yellow-500 tracking-widest uppercase">Lucky Slots</h2>
+			<div class="text-slate-400 font-mono text-sm">Credits: <span class="text-green-400 font-bold text-lg">{ fmt.Sprint(s.Credits) }</span></div>
+		</div>
+
+		<div class="flex gap-4 bg-slate-900 p-6 rounded-xl border-inset border-4 border-slate-700">
+			for _, symbol := range s.Reels {
+				<div class="w-20 h-24 bg-white rounded-lg flex items-center justify-center shadow-inner overflow-hidden">
+					<span class={ "text-4xl", getSymbolIcon(symbol) }></span>
+				</div>
+			}
+		</div>
+
+		<div class="flex flex-col items-center gap-4 w-full">
+			if s.LastWin > 0 {
+				<div class="text-2xl font-bold text-yellow-400 animate-bounce">WIN: +{ fmt.Sprint(s.LastWin) }!</div>
+			} else {
+				<div class="h-8"></div>
+			}
+
+			<button
+				hx-get="/slots?action=spin"
+				hx-target="#game-container"
+				class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-8 rounded-full border-b-8 border-red-900 active:border-b-0 active:translate-y-2 transition-all text-xl uppercase shadow-lg disabled:opacity-50"
+				if s.Credits < 10 {
+					disabled
+				}
+			>
+				SPIN (10)
+			</button>
+		</div>
+
+		<div class="text-slate-500 text-xs text-center mt-4">
+			Three of a kind wins BIG. Two of a kind wins 20 credits.
+		</div>
+	</div>
+}
+
+func getSymbolIcon(symbol string) string {
+	switch symbol {
+	case "cherry": return "icon-[lucide--cherry] text-red-500"
+	case "lemon": return "icon-[lucide--citrus] text-yellow-400"
+	case "grape": return "icon-[lucide--grapes] text-purple-500"
+	case "bell": return "icon-[lucide--bell] text-yellow-600"
+	case "diamond": return "icon-[lucide--gem] text-blue-400"
+	case "seven": return "icon-[lucide--dice-6] text-red-700"
+	default: return "icon-[lucide--help-circle]"
+	}
+}

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Board Game Engine</title>
+    <link rel="stylesheet" href="output.css">
+    <link rel="manifest" href="manifest.json">
+    <script src="wasm_exec.js"></script>
+    <script src="https://unpkg.com/htmx.org@2.0.0"></script>
+</head>
+<body class="bg-slate-100 font-sans">
+    <div id="game-container">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="text-xl font-bold animate-pulse">Loading Game Engine...</div>
+        </div>
+    </div>
+
+    <script>
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').then(async (registration) => {
+                console.log('Service Worker registered with scope:', registration.scope);
+
+                // Once SW is ready, use HTMX to fetch initial state
+                // This triggers the Service Worker's 'fetch' listener,
+                // which calls the WASM module.
+                await navigator.serviceWorker.ready;
+                htmx.ajax('GET', '/', {target:'#game-container'});
+            });
+        }
+    </script>
+</body>
+</html>
