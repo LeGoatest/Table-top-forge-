@@ -45,7 +45,7 @@ func Layout(title string, body templ.Component) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</title><link rel=\"stylesheet\" href=\"/output.css\"><script src=\"https://unpkg.com/htmx.org@2.0.0\"></script><link rel=\"manifest\" href=\"/manifest.json\"></head><body class=\"bg-slate-100 font-sans\"><nav class=\"bg-slate-800 text-white p-4 shadow-md w-full\"><div class=\"container mx-auto flex justify-between items-center\"><a href=\"/\" class=\"text-xl font-bold flex items-center gap-2\"><span class=\"icon-[lucide--gamepad-2]\"></span> Board Game Engine</a><div class=\"flex gap-4\"><button hx-post=\"/reset\" hx-target=\"#game-container\" class=\"hover:text-slate-300\">New Game</button> <button hx-get=\"/slots\" hx-target=\"#game-container\" class=\"hover:text-slate-300\">Slots</button> <button hx-get=\"/\" hx-target=\"#game-container\" class=\"hover:text-slate-300\">Checkers</button></div></div></nav><main class=\"container mx-auto p-4 flex flex-col items-center\"><div id=\"game-container\" class=\"w-full flex justify-center\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</title><link rel=\"stylesheet\" href=\"/output.css\"><script src=\"https://unpkg.com/htmx.org@2.0.0\"></script><link rel=\"manifest\" href=\"/manifest.json\"></head><body class=\"bg-slate-100 font-sans\"><nav class=\"bg-slate-800 text-white p-4 shadow-md w-full\"><div class=\"container mx-auto flex justify-between items-center\"><a href=\"/\" class=\"text-xl font-bold flex items-center gap-2\"><span class=\"icon-[lucide--gamepad-2]\"></span> Board Game Engine</a><div class=\"flex gap-4\"><button hx-get=\"/chess\" hx-target=\"#game-container\" class=\"hover:text-slate-300\">Chess</button> <button hx-get=\"/dominoes\" hx-target=\"#game-container\" class=\"hover:text-slate-300\">Dominoes</button> <button hx-get=\"/blackjack\" hx-target=\"#game-container\" class=\"hover:text-slate-300\">Blackjack</button> <button hx-get=\"/slots\" hx-target=\"#game-container\" class=\"hover:text-slate-300\">Slots</button> <button hx-get=\"/\" hx-target=\"#game-container\" class=\"hover:text-slate-300\">Checkers</button></div></div></nav><main class=\"container mx-auto p-4 flex flex-col items-center\"><div id=\"game-container\" class=\"w-full flex justify-center\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -136,7 +136,7 @@ func CheckersBoard(game *engine.Checkers) templ.Component {
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/select?row=%d&col=%d", r, c))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/checkers.templ`, Line: 59, Col: 57}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `templates/checkers.templ`, Line: 61, Col: 57}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {

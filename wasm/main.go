@@ -16,10 +16,15 @@ import (
 )
 
 var (
-	game      *engine.Checkers
-	slots     *engine.SlotMachine
-	database  *db.Database
+	game       *engine.Checkers
+	slots      *engine.SlotMachine
+	blackjack  *engine.Blackjack
+	dominoes   *engine.Dominoes
+	chess      *engine.Chess
+	database   *db.Database
 	activeGame string
+
+	chessSelected *engine.Position
 )
 
 func main() {
@@ -33,6 +38,9 @@ func main() {
 
 	game = engine.NewCheckers()
 	slots = engine.NewSlotMachine()
+	blackjack = engine.NewBlackjack()
+	dominoes = engine.NewDominoes()
+	chess = engine.NewChess()
 	activeGame = "checkers"
 
 	loadState()
@@ -61,6 +69,21 @@ func loadState() {
 	if err == nil && !val.IsNull() && !val.IsUndefined() {
 		json.Unmarshal([]byte(val.String()), &slots)
 	}
+
+	val, err = database.Load("blackjack")
+	if err == nil && !val.IsNull() && !val.IsUndefined() {
+		json.Unmarshal([]byte(val.String()), &blackjack)
+	}
+
+	val, err = database.Load("dominoes")
+	if err == nil && !val.IsNull() && !val.IsUndefined() {
+		json.Unmarshal([]byte(val.String()), &dominoes)
+	}
+
+	val, err = database.Load("chess")
+	if err == nil && !val.IsNull() && !val.IsUndefined() {
+		json.Unmarshal([]byte(val.String()), &chess)
+	}
 }
 
 func saveState() {
@@ -75,6 +98,15 @@ func saveState() {
 
 	slotsJSON, _ := json.Marshal(slots)
 	database.Save("slots", string(slotsJSON))
+
+	blackjackJSON, _ := json.Marshal(blackjack)
+	database.Save("blackjack", string(blackjackJSON))
+
+	dominoesJSON, _ := json.Marshal(dominoes)
+	database.Save("dominoes", string(dominoesJSON))
+
+	chessJSON, _ := json.Marshal(chess)
+	database.Save("chess", string(chessJSON))
 }
 
 func handleRequest(this js.Value, args []js.Value) any {
@@ -113,6 +145,59 @@ func handleRequest(this js.Value, args []js.Value) any {
 			saveState()
 		}
 		err = render("Slots", templates.SlotMachineGame(slots))
+	case "/blackjack":
+		activeGame = "blackjack"
+		params := u.Query()
+		action := params.Get("action")
+		if action != "" {
+			blackjack.HandleMove(ctx, params)
+			saveState()
+		}
+		err = render("Blackjack", templates.BlackjackGame(blackjack))
+	case "/dominoes":
+		activeGame = "dominoes"
+		params := u.Query()
+		action := params.Get("action")
+		if action == "play" {
+			idx, _ := strconv.Atoi(params.Get("idx"))
+			side := params.Get("side")
+			dominoes.Play(0, idx, side)
+			saveState()
+		} else if len(dominoes.Hands[0]) == 0 && len(dominoes.Board) == 0 {
+			dominoes.Deal(2)
+		}
+		err = render("Dominoes", templates.DominoesGame(dominoes))
+	case "/chess":
+		activeGame = "chess"
+		err = render("Chess", templates.ChessBoard(chess))
+	case "/chess/select":
+		activeGame = "chess"
+		params := u.Query()
+		row, _ := strconv.Atoi(params.Get("row"))
+		col, _ := strconv.Atoi(params.Get("col"))
+
+		if chessSelected == nil {
+			p := chess.Board[row][col]
+			if p.Type != engine.None && p.Color == chess.CurrentPlayer {
+				chessSelected = &engine.Position{Row: row, Col: col}
+			}
+		} else {
+			if chessSelected.Row == row && chessSelected.Col == col {
+				chessSelected = nil
+			} else {
+				moveErr := chess.Move(chessSelected.Row, chessSelected.Col, row, col)
+				if moveErr == nil {
+					chessSelected = nil
+					saveState()
+				} else {
+					p := chess.Board[row][col]
+					if p.Type != engine.None && p.Color == chess.CurrentPlayer {
+						chessSelected = &engine.Position{Row: row, Col: col}
+					}
+				}
+			}
+		}
+		err = render("Chess", templates.ChessBoard(chess))
 	case "/select":
 		activeGame = "checkers"
 		params := u.Query()
@@ -145,15 +230,30 @@ func handleRequest(this js.Value, args []js.Value) any {
 		err = templates.CheckersBoard(game).Render(ctx, &buf)
 	case "/reset":
 		if method == "POST" {
-			if activeGame == "slots" {
+			switch activeGame {
+			case "slots":
 				slots.Reset()
-			} else {
+			case "blackjack":
+				blackjack.Reset()
+			case "dominoes":
+				dominoes.Reset()
+				dominoes.Deal(2)
+			case "chess":
+				chess.Reset()
+			default:
 				game.Reset()
 			}
 			saveState()
-			if activeGame == "slots" {
+			switch activeGame {
+			case "slots":
 				err = templates.SlotMachineGame(slots).Render(ctx, &buf)
-			} else {
+			case "blackjack":
+				err = templates.BlackjackGame(blackjack).Render(ctx, &buf)
+			case "dominoes":
+				err = templates.DominoesGame(dominoes).Render(ctx, &buf)
+			case "chess":
+				err = templates.ChessBoard(chess).Render(ctx, &buf)
+			default:
 				err = templates.CheckersBoard(game).Render(ctx, &buf)
 			}
 		}

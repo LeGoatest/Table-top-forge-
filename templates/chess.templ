@@ -1,0 +1,54 @@
+package templates
+
+import (
+	"fmt"
+	"github.com/user/boardgame-engine/internal/engine"
+)
+
+templ ChessBoard(game *engine.Chess) {
+	<div class="flex flex-col items-center gap-6">
+		<div class="text-2xl font-semibold">
+			if game.CurrentPlayer == engine.White {
+				<span class="text-slate-100 bg-slate-800 px-4 py-1 rounded">White's Turn</span>
+			} else {
+				<span class="text-slate-800 bg-slate-100 px-4 py-1 rounded border">Black's Turn</span>
+			}
+		</div>
+		<div class="grid grid-cols-8 border-4 border-slate-900 shadow-2xl">
+			for r := 7; r >= 0; r-- {
+				for c := 0; c < 8; c++ {
+					<div
+						class={ "w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center relative",
+                               templ.KV("bg-slate-300", (r+c)%2 != 0),
+                               templ.KV("bg-slate-600", (r+c)%2 == 0) }
+						hx-get={ fmt.Sprintf("/chess/select?row=%d&col=%d", r, c) }
+						hx-target="#game-container"
+					>
+						if game.Board[r][c].Type != engine.None {
+							<span class={ "text-3xl sm:text-4xl", getChessPieceIcon(game.Board[r][c]) }></span>
+						}
+					</div>
+				}
+			}
+		</div>
+	</div>
+}
+
+func getChessPieceIcon(p engine.ChessPiece) string {
+	colorClass := "text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]"
+	if p.Color == engine.BlackChess {
+		colorClass = "text-slate-950"
+	}
+
+	icon := ""
+	switch p.Type {
+	case engine.Pawn: icon = "icon-[fa6-solid--chess-pawn]"
+	case engine.Rook: icon = "icon-[fa6-solid--chess-rook]"
+	case engine.Knight: icon = "icon-[fa6-solid--chess-knight]"
+	case engine.Bishop: icon = "icon-[fa6-solid--chess-bishop]"
+	case engine.Queen: icon = "icon-[fa6-solid--chess-queen]"
+	case engine.King: icon = "icon-[fa6-solid--chess-king]"
+	}
+
+	return fmt.Sprintf("%s %s", icon, colorClass)
+}

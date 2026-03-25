@@ -22,7 +22,9 @@ templ Layout(title string, body templ.Component) {
 						Board Game Engine
 					</a>
 					<div class="flex gap-4">
-						<button hx-post="/reset" hx-target="#game-container" class="hover:text-slate-300">New Game</button>
+						<button hx-get="/chess" hx-target="#game-container" class="hover:text-slate-300">Chess</button>
+						<button hx-get="/dominoes" hx-target="#game-container" class="hover:text-slate-300">Dominoes</button>
+						<button hx-get="/blackjack" hx-target="#game-container" class="hover:text-slate-300">Blackjack</button>
 						<button hx-get="/slots" hx-target="#game-container" class="hover:text-slate-300">Slots</button>
 						<button hx-get="/" hx-target="#game-container" class="hover:text-slate-300">Checkers</button>
 					</div>

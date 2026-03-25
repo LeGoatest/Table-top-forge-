@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @plugin "@iconify/tailwind" {
   prefix: "icon";
-  collections: ["lucide"];
+  collections: ["lucide", "fa6-solid"];
 }
 
 :root {
